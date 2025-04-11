@@ -58,6 +58,18 @@ struct cache_file_info
   f64 _stamp;
 };
 
+internal inline u32
+str_len(const char *a)
+{
+  u32 i = 0;
+  for (;;)
+  {
+    if (a[i++] == '\0')
+      return (i-1);
+  }
+  return (0);
+}
+
 internal inline bool8 
 str_cmp(const char *a, const char *b)
 {
@@ -125,8 +137,13 @@ read_cache_file_info(const char *file_path, cache_file_info *out_info)
   if (file_handle != INVALID_HANDLE_VALUE)
   {
     u64 bytes_read = 0;
-    ReadFile(file_handle, out_info, GetFileSize(file_handle, NULL),
-        (LPDWORD)(&bytes_read), NULL);
+    if (ReadFile(file_handle, out_info, GetFileSize(file_handle, NULL),
+        (LPDWORD)(&bytes_read), NULL) == INVALID_FILE_SIZE)
+    {
+      win32_log_last_err();
+      CloseHandle(file_handle);
+      return (FALSE);
+    }
     CloseHandle(file_handle);
     return (TRUE);
   }
@@ -183,7 +200,14 @@ main (int argc, const char **argv)
     const char *mode = argv[1];
     const char *file_dir = argv[2];
 
+    if (str_len(file_dir) + str_len(CACHE_FILE_NAME) >= 128-1)
+    {
+      fprintf(stdout, "Directory path provided is too long, only supporting\
+ 128 - CACHE_FILE_NAME length characters.\n");
+      return (0);
+    }
     char full_file_path[128];
+    memset(full_file_path, 0, 128);
     get_full_file_path(file_dir, full_file_path);
 
     if (str_cmp(mode,  "start"))
@@ -200,7 +224,6 @@ main (int argc, const char **argv)
       if (read_cache_file_info(full_file_path, &cfi))
       {
         QueryPerformanceCounter(&stamp);
-        f64 d = stamp.QuadPart / (f64)freq.QuadPart;
         f64 result_ms = (stamp.QuadPart / (f64)freq.QuadPart) - cfi._stamp;
         fprintf(stdout, "%.4fms\n", result_ms);
       }
