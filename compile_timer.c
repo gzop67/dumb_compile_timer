@@ -64,17 +64,21 @@ str_cmp(const char *a, const char *b)
   u32 i = 0;
   for (;;)
   {
-    if (a[i] != '\0' && b[i] != '\0')
+    char v0 = a[i];
+    char v1 = b[i];
+    if (v0 + v1 != 0)
     {
-      if (a[i] == b[i])
+      if (v0 == v1)
         i++;
       else
-        return (FALSE);
+        break;
     }
-    else
-      break;
+    else if (v0 + v1 == 0)
+    {
+      return (TRUE);
+    }
   }
-  return (TRUE);
+  return (FALSE);
 }
 
 void 
@@ -93,7 +97,7 @@ get_full_file_path(const char *dir, char *buf)
   memcpy(buf, dir, dir_len);
 
   index = 0;
-  char file_name[32] = CACHE_FILE_NAME;
+  const char *file_name = CACHE_FILE_NAME;
   for (;;)
   {
     if (file_name[index] == '\0')
@@ -186,13 +190,13 @@ main (int argc, const char **argv)
     {
       QueryPerformanceCounter(&stamp);
       f64 d = stamp.QuadPart / (f64)freq.QuadPart;
-      cache_file_info cfi = {};
+      cache_file_info cfi = {0};
       cfi._stamp = d;
       write_cache_file_info(full_file_path, cfi);
     }
     else if (str_cmp(mode,  "stop"))
     {
-      cache_file_info cfi = {};
+      cache_file_info cfi = {0};
       if (read_cache_file_info(full_file_path, &cfi))
       {
         QueryPerformanceCounter(&stamp);
