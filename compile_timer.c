@@ -32,6 +32,8 @@ SOFTWARE.
 #define internal static
 #define CACHE_FILE_NAME "compile_timer_cache"
 
+#define PATH_BUF_SIZE 128
+
 typedef uint64_t u64;
 typedef uint32_t u32;
 typedef uint8_t u8;
@@ -107,6 +109,10 @@ get_full_file_path(const char *dir, char *buf)
     index++;
   }
   memcpy(buf, dir, dir_len);
+  if (dir[index-1] != '\\')
+  {
+    buf[dir_len++] = '\\';
+  }
 
   index = 0;
   const char *file_name = CACHE_FILE_NAME;
@@ -207,14 +213,14 @@ main (int argc, const char **argv)
     const char *mode = argv[1];
     const char *file_dir = argv[2];
 
-    if (str_len(file_dir) + str_len(CACHE_FILE_NAME) >= 128-1)
+    if (str_len(file_dir) + str_len(CACHE_FILE_NAME) >= PATH_BUF_SIZE-1)
     {
       fprintf(stdout, "Directory path provided is too long, only supporting\
  128 - CACHE_FILE_NAME length characters.\n");
       return (0);
     }
-    char full_file_path[128];
-    memset(full_file_path, 0, 128);
+    char full_file_path[PATH_BUF_SIZE];
+    memset(full_file_path, 0, PATH_BUF_SIZE);
     get_full_file_path(file_dir, full_file_path);
 
     if (str_cmp(mode,  "start"))
