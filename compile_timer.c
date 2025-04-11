@@ -137,12 +137,17 @@ read_cache_file_info(const char *file_path, cache_file_info *out_info)
   if (file_handle != INVALID_HANDLE_VALUE)
   {
     u64 bytes_read = 0;
-    if (ReadFile(file_handle, out_info, GetFileSize(file_handle, NULL),
-        (LPDWORD)(&bytes_read), NULL) == INVALID_FILE_SIZE)
+    DWORD file_size = GetFileSize(file_handle, NULL);
+    if (file_size == INVALID_FILE_SIZE)
     {
       win32_log_last_err();
       CloseHandle(file_handle);
       return (FALSE);
+    }
+    if (ReadFile(file_handle, out_info, file_size,
+        (LPDWORD)(&bytes_read), NULL))
+    {
+      return (TRUE);
     }
     CloseHandle(file_handle);
     return (TRUE);
