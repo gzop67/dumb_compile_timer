@@ -156,7 +156,7 @@ write_cache_file_info(const char *file_path, cache_file_info cfi)
     WriteFile(file_handle, (void*)(&cfi), sizeof(cache_file_info),
         (LPDWORD)(&written_bytes), NULL);
     CloseHandle(file_handle);
-    fprintf(stdout, "%s\n", file_path);
+    fprintf(stdout, "Cache file written: %s\n", file_path);
     return (TRUE);
   }
   else
