@@ -144,10 +144,12 @@ read_cache_file_info(const char *file_path, cache_file_info *out_info)
       CloseHandle(file_handle);
       return (FALSE);
     }
-    if (ReadFile(file_handle, out_info, file_size,
+    if (!ReadFile(file_handle, out_info, file_size,
         (LPDWORD)(&bytes_read), NULL))
     {
-      return (TRUE);
+      win32_log_last_err();
+      CloseHandle(file_handle);
+      return (FALSE);
     }
     CloseHandle(file_handle);
     return (TRUE);
