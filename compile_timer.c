@@ -238,7 +238,7 @@ main (int argc, const char **argv)
       {
         QueryPerformanceCounter(&stamp);
         f64 result_ms = (stamp.QuadPart / (f64)freq.QuadPart) - cfi._stamp;
-        fprintf(stdout, "%.4fms\n", result_ms);
+        fprintf(stdout, "%.4fs\n", result_ms);
       }
       else
       {
